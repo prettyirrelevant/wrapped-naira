@@ -2,7 +2,9 @@
 
 This project provides a seamless fiat-to-crypto ramp, allowing users to easily convert Nigerian Naira (NGN) into a stablecoin ERC20 token. It also features a peer-to-peer exchange platform where merchants can list offers, and interested buyers can participate. The process is straightforward - users deposit NGN via a payment processor like Paystack, and the equivalent token amount is minted. The tokens are burned for withdrawals, and the corresponding fiat is sent back to the user's linked bank account. Crucially, the project ensures 1:1 backing of all funds, providing transparency and security.
 
-## Folder Structure
+## Project Structure
+
+The project repository contains the following directories, each named after a Nigerian meal:
 
 ```sh
 .
