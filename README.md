@@ -1,93 +1,118 @@
 # Wrapped Naira
 
+This project provides a seamless fiat-to-crypto ramp, allowing users to easily convert Nigerian Naira (NGN) into a stablecoin ERC20 token. It also features a peer-to-peer exchange platform where merchants can list offers, and interested buyers can participate. The process is straightforward - users deposit NGN via a payment processor like Paystack, and the equivalent token amount is minted. The tokens are burned for withdrawals, and the corresponding fiat is sent back to the user's linked bank account. Crucially, the project ensures 1:1 backing of all funds, providing transparency and security.
 
+## Folder Structure
 
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab.com/prettyirrelevant/wrapped-naira.git
-git branch -M main
-git push -uf origin main
+```sh
+.
+├── README.md
+├── afang (Subgraph files and configurations)
+├── miyan (Solidity smart contracts)
+├── ukwa (Node.js backend API)
+└── wara (TypeScript React frontend)
 ```
 
-## Integrate with your tools
+## Architecture
 
-- [ ] [Set up project integrations](https://gitlab.com/prettyirrelevant/wrapped-naira/-/settings/integrations)
+```mermaid
+sequenceDiagram
+    participant User
+    participant Paystack
+    participant WNGNContract
+    participant Server
 
-## Collaborate with your team
+    User->>Paystack: Sends money
+    Paystack->>Server: Sends webhook
+    Server-->>WNGNContract: Mints WNGN tokens
+    Server-->>User: Allocates minted WNGN tokens to user's blockchain address
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+    User->>WNGNContract: Burns WNGN tokens
+    WNGNContract->>Server: Emits Burn event
+    Server-->>User: Sends equivalent fiat asset to user's linked bank account
+```
 
-## Test and Deploy
+## Utilities
 
-Use the built-in continuous integration in GitLab.
+- **Peer-to-peer stablecoin exchange**: This platform allows users to trade the WNGN token directly with each other, facilitating the growth of the token's liquidity. As the project gains more traction, liquidity pools will be created on popular decentralized exchanges (DEXes) to further improve the token's liquidity.
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+```mermaid
+sequenceDiagram
+    participant Merchant
+    participant User
+    participant P2PExchange
+    participant WNGN
+    participant USDC
 
-***
+    alt Merchant Buy Ad Flow
+        Merchant->>P2PExchange: Create a BUY advertisement with price, WNGN quantity, and validity period
+        P2PExchange->>WNGN: Transfer required WNGN tokens from Merchant to the contract
+        P2PExchange-->>Merchant: Notify the Merchant that the BUY advertisement was created
 
-# Editing this README
+        User->>P2PExchange: Participate in the BUY advertisement by providing the ad ID and the amount of USDC to sell
+        P2PExchange->>USDC: Transfer the provided USDC amount from User to the Merchant
+        P2PExchange->>WNGN: Transfer the calculated WNGN tokens from the contract to the User
+        P2PExchange-->>User: Notify the User that the trade was executed
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+        alt Buy advertisement has expired and there are remaining WNGN tokens
+            Merchant->>P2PExchange: Withdraw the remaining funds for the expired BUY advertisement
+            P2PExchange->>WNGN: Transfer the remaining WNGN tokens from the contract to the Merchant
+            P2PExchange-->>Merchant: Notify the Merchant that the funds were withdrawn
+        end
+    else Merchant Sell Ad Flow
+        Merchant->>P2PExchange: Create a SELL advertisement with price, USDC quantity, and validity period
+        P2PExchange->>USDC: Transfer required USDC tokens from Merchant to the contract
+        P2PExchange-->>Merchant: Notify the Merchant that the SELL advertisement was created
 
-## Suggestions for a good README
+        User->>P2PExchange: Participate in the SELL advertisement by providing the ad ID and the amount of WNGN to buy
+        P2PExchange->>WNGN: Transfer the provided WNGN amount from User to the Merchant
+        P2PExchange->>USDC: Transfer the calculated USDC tokens from the contract to the User
+        P2PExchange-->>User: Notify the User that the trade was executed
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+        alt Sell advertisement has expired and there are remaining USDC tokens
+            Merchant->>P2PExchange: Withdraw the remaining funds for the expired SELL advertisement
+            P2PExchange->>USDC: Transfer the remaining USDC tokens from the contract to the Merchant
+            P2PExchange-->>Merchant: Notify the Merchant that the funds were withdrawn
+        end
+    end
+```
 
-## Name
-Choose a self-explaining name for your project.
+## Deployment Addresses
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+### 1. WNGN Token
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+- Scroll Sepolia - [0xaf97c3478abf6eeac933d3383b71668f314400aa](https://sepolia.scrollscan.com/address/0xaf97c3478abf6eeac933d3383b71668f314400aa)
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+- Scroll Mainnet - Coming soon 🚀
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+### 2. P2P Contract
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+- Scroll Sepolia - [0x3e3ff6bd166aca5837e3df8419991b3905c28fa2](https://sepolia.scrollscan.com/address/0x3e3ff6bd166aca5837e3df8419991b3905c28fa2)
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+- Scroll Mainnet - Coming soon 🚀
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+## API
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+### Technologies Used
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+- [Viem](https://viem.sh/)
+- [Honojs](https://hono.dev/)
+- [Supabase](https://supabase.com/)
+- [Trigger.dev](https://trigger.dev/)
+- [Subgraph](https://thegraph.com/en/)
+- [Drizzle ORM](https://orm.drizzle.team/)
+- [Cloudflare for deployment](https://www.cloudflare.com)
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+### URL
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+Backend is live @ [https://ukwa.ienioladewumi.workers.dev/](https://ukwa.ienioladewumi.workers.dev/) ✨
 
-## License
-For open source projects, say how it is licensed.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+## Challenges Faced
+
+During the development of this project, we encountered several obstacles related to the deployment of the subgraph. Despite multiple attempts, the subgraph deployment consistently failed, hindering our progress.
+
+The first issue we faced was related to IPFS deployment. To overcome this hurdle, we utilized the Satsuma IPFS URL as an alternative solution. However, this workaround did not completely resolve the deployment problems.
+
+Subsequently, we encountered difficulties when attempting to deploy the subgraph to the node. As a potential solution, we explored the possibility of switching to Alchemy's node, as they offer support for subgraphs. Unfortunately, as at the time of the hackathon, Alchemy did not provide support for the Scroll zkEVM blockchain, which was the platform we were targeting.
+****

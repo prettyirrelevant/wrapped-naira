@@ -1,0 +1,12 @@
+[submodule "ukwa"]
+	path = ukwa
+	url = https://gitlab.com/prettyirrelevant/ukwa
+[submodule "miyan"]
+	path = miyan
+	url = https://gitlab.com/prettyirrelevant/miyan
+[submodule "afang"]
+	path = afang
+	url = https://gitlab.com/prettyirrelevant/afang
+[submodule "wara"]
+	path = wara
+	url = https://gitlab.com/prettyirrelevant/wara
