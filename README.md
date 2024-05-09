@@ -105,10 +105,15 @@ sequenceDiagram
 - [Drizzle ORM](https://orm.drizzle.team/)
 - [Cloudflare for deployment](https://www.cloudflare.com)
 
+### Contributors
+
+- Kester Atakere ([@codergon](https://github.com/codergon)): Frontend Engineer
+- Mogboluwaga Onayade ([@MogboPython](https://github.com/MogboPython)): Backend Engineer
+- Isaac Adewumi ([@prettyirrelevant](https://github.com/prettyirrelevant)): Backend & Smart Contract Engineer
+
 ### URL
 
-Backend is live @ [https://ukwa.ienioladewumi.workers.dev/](https://ukwa.ienioladewumi.workers.dev/) ✨
-
+Backend is live @ [here](https://ukwa.ienioladewumi.workers.dev/) ✨
 
 ## Challenges Faced
 
